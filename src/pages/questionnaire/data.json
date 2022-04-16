@@ -1,0 +1,60 @@
+{
+  "title": "Cyber Security Knowledge Quiz",
+  "questions": [
+    {
+      "id": 1,
+      "title": "A hacker locks out users and encrypts their personal computer files and data, holding it hostage until they agree to pay to the attacker. What is this practice called?",
+      "type": "single",
+      "answers": [
+        { "value": "0", "score": 0, "label": "Browser hijacker" },
+        { "value": "100", "score": 100, "label": "Ransomware" },
+        { "value": "0", "score": 0, "label": "Brute-force" }
+      ]
+    }, {
+      "id": 2,
+      "title": "On the evening news you heard the reporter talking about an Internet threat called a 'Botnet'. What exactly is a Botnet?",
+      "type": "single",
+      "answers": [
+        { "value": "0", "score": 0, "label": "It is a malicious program that attempts to hide itself, other files, or computer data so they cannot be found on a computer." },
+        { "value": "100", "score": 100, "label": "A group of computers running malicious programs that are remotely controlled by cybercriminals." },
+        { "value": "0", "score": 0, "label": "A new type of cyber virus spread from China causing havoc around the globe." }
+      ]
+    }, {
+      "id": 3,
+      "title": "This type of attack is designed to hinder the normal operation of a website, or other network resource.",
+      "type": "single",
+      "answers": [
+        { "value": "100", "score": 100, "label": "DoS attack" },
+        { "value": "0", "score": 0, "label": "POS attack" },
+        { "value": "0", "score": 0, "label": "Phishing" }
+      ]
+    }, {
+      "id": 4,
+      "title": "Which of the following is a common example of a \"phishing\" attack?",
+      "type": "multi",
+      "answers": [
+        { "value": "10", "score": 10, "label": "You receive an email from an acquaintance who you are rarely in contact with that contains only a web link." },
+        { "value": "40", "score": 40, "label": "You got an email that appears to be from your bank asking you to enter your account number and password, but the web address looks unfamiliar." },
+        { "value": "60", "score": 60, "label": "You received a text message claiming that you won a contest and asking you to click on the link." }
+      ]
+    }, {
+      "id": 5,
+      "title": "You are on a business trip and sitting in the local cafe trying to send emails to your colleagues to catch up on a few tasks.",
+      "type": "single",
+      "answers": [
+        { "value": "50", "score": 50, "label": "Find the strongest WiFi signal near you" },
+        { "value": "70", "score": 70, "label": "Turn off your file sharing" },
+        { "value": "100", "score": 100, "label": "Use a Virtual Private Network (VPN)" }
+      ]
+    }, {
+      "id": 6,
+      "title": "You are attending a business gathering with people discussing GDPR, the new European General Data Protection Regulation that goes into effect this May. Which of the following statements is true about GDPR?",
+      "type": "single",
+      "answers": [
+        { "value": "50", "score": 50, "label": "The GDPR's protection of EU citizens' data only applies to companies located in Europe." },
+        { "value": "100", "score": 100, "label": "GDPR is closely related to IT security." },
+        { "value": "40", "score": 40, "label": "Failing to comply with GDPR only damages a company's reputation, as there is no financial penalty for noncompliance." }
+      ]
+    }
+  ]
+}

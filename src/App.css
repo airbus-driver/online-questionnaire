@@ -1,3 +1,13 @@
+main {
+  position: absolute;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%);
+  padding: 40px;
+  width: 70%;
+  min-width: 400px;
+}
+
 .App {
   text-align: center;
 }
