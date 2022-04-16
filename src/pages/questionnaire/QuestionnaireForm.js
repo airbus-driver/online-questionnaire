@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Formik, Form, FieldArray, setIn } from 'formik';
 
-import { TextArea, Button, ProgressBar } from '../../components';
+import { TextArea, Button, ProgressBar, Input } from '../../components';
+import { useDebounce } from '../../hooks';
 
 import AnswersField from './AnswersField';
 
@@ -34,12 +35,40 @@ const ProgressWrapper = styled.div`
   min-width: 400px;
 `;
 
-const QuestionnaireForm = ({ questions, initialValues, onSubmit }) => {
-  const [current, setCurrent] = useState(0);
+const Search = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
-  const showNext = current < questions.length - 1;
-  const showPrev = current > 0;
-  const showSubmit = current === questions.length - 1;
+const SearchInput = styled(Input)`
+  height: 20px;
+  padding: 5px;
+  flex: 1 1 30%;
+`;
+
+const Questions = styled.div`
+  border: 1px solid;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+`;
+
+const QuestionnaireForm = ({ questions, onSubmit }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState(questions);
+  const [filter, setFilter] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  const initialValues = {
+    answers: questions.map((item) => {
+      return {
+        id: item.id,
+        value: 0,
+      }
+    }),
+  };
 
   const checkCurrentValue = (value) => {
     if (Array.isArray(value) && !value.length) return false;
@@ -48,26 +77,40 @@ const QuestionnaireForm = ({ questions, initialValues, onSubmit }) => {
     return true;
   };
 
-  const onNext = (values, setFieldError) => {
-    console.log(values)
+  const calcProgress = useCallback((answers) => {
+    const answerSum = answers.reduce((acc, item) => {
+      if (checkCurrentValue(item.value)) {
+        return acc + 1;
+      }
+      return acc;
+    }, 0);
+    const progress = (answerSum || 0) / questions.length * 100;
+    return progress;
+  }, [questions.length]);
 
-    const currentValue = values.answers[current].value;
-    if (!checkCurrentValue(currentValue)) {
-      setFieldError(`answers.${current}.value`, 'You must answer the question.');
-      return
+  const handleSearch = useCallback(() => {
+    if (!debouncedSearchTerm) {
+      setResults(questions);
     }
-    if (current >= questions.length - 1) return;
-    setCurrent((prev) => {
-      return prev + 1;
-    })
+    if (debouncedSearchTerm && debouncedSearchTerm.length > 2) {
+      const searchResults = questions
+        .filter(x => x.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) || x.answers.some(x => x.label.toLowerCase().includes(debouncedSearchTerm.toLowerCase())));
+      setResults(searchResults);
+    }
+  }, [debouncedSearchTerm, questions]);
+
+  const handleFilterChange = (e, values) => {
+    if (filter) {
+      handleSearch();
+    } else {
+      setResults(results.filter(item => !checkCurrentValue(values.answers.find(x => x.id === item.id).value)));
+    }
+    setFilter(!filter);
   };
 
-  const onPrev = () => {
-    if (current === 0) return;
-    setCurrent((prev) => {
-      return prev - 1;
-    })
-  };
+  useEffect(() => {
+    handleSearch();
+  }, [handleSearch]);
 
   const validate = (values) => {
     let errors = {};
@@ -83,42 +126,51 @@ const QuestionnaireForm = ({ questions, initialValues, onSubmit }) => {
 
   return (
     <Formik
+      enableReinitialize={true}
       initialValues={initialValues}
       onSubmit={onSubmit}
-      validateOnBlur={false}
-      validateOnChange={false}
       validate={validate}
     >
-      {({ values, handleChange, setFieldError }) => (
+      {({ values, handleChange }) => (
         <Form noValidate>
           <ProgressWrapper>
-            <ProgressBar value={(current + 1) / questions.length * 100} />
+            <ProgressBar value={calcProgress(values.answers)} />
           </ProgressWrapper>
 
-          <FieldArray name="answers">
-            {() => (
-              <div>
-                {values.answers.map((answer, index) => (
-                  <QuestionWrapper active={current === index} key={index}>
-                    <h4>{`${index + 1}. ${questions[index].title}`}</h4>
-                    <FormControl>
-                      <AnswersField type={questions[index].type} answers={questions[index].answers} name={`answers.${index}.value`} />
-                    </FormControl>
-                    {questions[index].type === 'multi' &&
-                      <FormControl>
-                        <label htmlFor={`answers.${index}.comment`}>Comments:</label>
-                        <StyledTextArea rows="6" name={`answers.${index}.comment`} onChange={handleChange} />
-                      </FormControl>
-                    }
-                  </QuestionWrapper>
-                ))}
-              </div>
-            )}
-          </FieldArray>
+          <Search>
+            <SearchInput type="text" name="search" placeholder="Search questions / answers" onChange={(e) => setSearchTerm(e.target.value)} />
+            <label>
+              <Input type="checkbox" name="filter" checked={filter}  onChange={(e) => handleFilterChange(e, values)} />
+              Show unanswered questions
+            </label>
+          </Search>
+
+          <Questions>
+            <FieldArray name="answers">
+              {() => (
+                <div>
+                  {questions.map((question, index) => {
+                    return (
+                      <QuestionWrapper active={results.find(x => x.id === question.id)} key={`question_${index}`}>
+                        <h4>{`${index + 1}. ${question.title}`}</h4>
+                        <FormControl>
+                          <AnswersField type={question.type} answers={question.answers} name={`answers.${index}.value`} />
+                        </FormControl>
+                        {question.type === 'multi' &&
+                          <FormControl>
+                            <label htmlFor={`answers.${index}.comment`}>Comments:</label>
+                            <StyledTextArea rows="6" name={`answers.${index}.comment`} onChange={handleChange} />
+                          </FormControl>
+                        }
+                      </QuestionWrapper>
+                    );
+                  })}
+                </div>
+              )}
+            </FieldArray>
+          </Questions>
           <ActionsArea>
-            {showNext && <Button variant='outlined' type="button" onClick={() => onNext(values, setFieldError)}>Next</Button>}
-            {showPrev && <Button variant='outlined' type="button" onClick={onPrev}>Previous</Button>}
-            {showSubmit && <Button type="submit">Submit</Button>}
+            <Button type="submit">Submit</Button>
           </ActionsArea>
         </Form>
       )}

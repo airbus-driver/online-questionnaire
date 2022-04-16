@@ -2,19 +2,12 @@ import React from 'react';
 import { useFormikContext, getIn } from 'formik';
 import styled from 'styled-components';
 
-const StyledInput = styled.input`
-  padding: 0;
-  margin: 5px 5px 0 0;
-`;
+import { Input } from '../../components';
 
 const ErrorContainer = styled.div`
   margin-top: 5px;
   color: ${({ theme }) => theme.colors.error};
 `;
-
-const Input = ({ ...rest }) => (
-  <StyledInput {...rest} />
-);
 
 const AnswersField = ({ type, answers, ...rest }) => {
   const {handleChange, errors } = useFormikContext();
@@ -22,8 +15,8 @@ const AnswersField = ({ type, answers, ...rest }) => {
 
   return (
     <div role="group" aria-labelledby="answer-group">
-      {answers.map((item, j) => (
-        <div key={`AnswersField_${j}`}>
+      {answers.map((item, index) => (
+        <div key={`AnswersField_${index}`}>
           <label>
             <Input type={type === 'single' ? 'radio' : 'checkbox'} name={name} value={item.value} onChange={handleChange} />
             {item.label}

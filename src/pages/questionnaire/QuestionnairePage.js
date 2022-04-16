@@ -11,21 +11,11 @@ const Score = styled.div`
 
 const { title, questions } = data;
 
-const initialValues = {
-  answers: data.questions.map(() => {
-    return {
-      value: 0,
-    }
-  }),
-};
-
 const QuestionnairePage = () => {
-  const [score, setScore] = useState();
+  const [score, setScore] = useState();  
 
   const onSubmit = (values) => {
-    console.log(values);
     const score = calc.calcScore(values.answers, questions);
-    console.log('score', score);
     setScore(score);
   };
 
@@ -33,7 +23,6 @@ const QuestionnairePage = () => {
     <>
       <h1>{title}</h1>
       <QuestionnaireForm
-        initialValues={initialValues}
         questions={questions}
         onSubmit={onSubmit}
       />
